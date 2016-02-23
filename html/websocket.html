@@ -1,192 +1,349 @@
 <!DOCTYPE html>
 <meta charset="utf-8" />
 <title>WebSocket Test</title>
+<!--
+	版本：1.0<br/>
+	作者：OKCoin<br/>
+-->
 <script type="text/javascript" src="MD5.js"></script>
-<script type="text/javascript">  
-    var wsUri ="wss://real.okcoin.cn:10440/websocket/okcoinapi"; 
-    var output;  
-    var lastHeartBeat = new Date().getTime();
-    var api_key = ''; //用户申请api_key
-    var secret_key = '';//用户申请 secret_key
-    var overtime = 8000;
-	
-    function init() { 
-        output = document.getElementById("output"); 
-        testWebSocket();
+<script type="text/javascript">
+	var okCoinWebSocket = {};
+	okCoinWebSocket.init = function(uri, apiKey, secretKey) {
+		this.wsUri = uri;
+		this.apiKey = apiKey;
+		this.secretKey = secretKey;
+		this.lastHeartBeat = new Date().getTime();
+		this.overtime = 8000;
+		
+		okCoinWebSocket.websocket = new WebSocket(okCoinWebSocket.wsUri);
+		
+		okCoinWebSocket.websocket.onopen = function(evt) {
+			onOpen(evt)
+		};
+		okCoinWebSocket.websocket.onclose = function(evt) {
+			onClose(evt)
+		};
+		okCoinWebSocket.websocket.onmessage = function(evt) {
+			onMessage(evt)
+		};
+		okCoinWebSocket.websocket.onerror = function(evt) {
+			onError(evt)
+		};
+		
 		//setInterval(checkConnect,5000);
-    }  
-	
-   function checkConnect() {
-	websocket.send("{'event':'ping'}"); 
-	if( (new Date().getTime()-lastHeartBeat)>overtime){
-	    onsole.log("socket 连接断开，正在尝试重新建立连接");
-		   //testWebSocket();
 	}
-    }
-	  
-    function testWebSocket() { 
-        websocket = new WebSocket(wsUri); 
-        websocket.onopen = function(evt) { 
-            onOpen(evt) 
-        }; 
-        websocket.onclose = function(evt) {
-            onClose(evt) 
-        }; 
-        websocket.onmessage = function(evt) { 
-           onMessage(evt) 
-        }; 
-        websocket.onerror = function(evt) { 
-            onError(evt) 
-        }; 
-        
-    }  
-	
-    //现货下单
-    function spotTrade() {
-	var sign = MD5("amount=0.1&api_key="+api_key+"&symbol=ltc_usd&type=sell_market&secret_key="+secret_key);
-        doSend("{'event':'addChannel','channel':'ok_spotusd_trade','parameters':{'api_key':'"+api_key+"','sign':'"+sign+"','symbol':'ltc_usd','type':'sell_market','amount':0.1}}");
-    }
-	
-    //现货取消订单
-    function spotCancelOrder(orderId) {
-	var sign = MD5("api_key="+api_key+"&order_id="+orderId+"&symbol=ltc_usd&secret_key="+secret_key);
-	doSend("{'event':'addChannel','channel':'ok_spotusd_cancel_order','parameters':{'api_key':'"+api_key+"','sign':'"+sign+"','symbol':'ltc_usd','order_id':'"+orderId+"'}}");
-    }
-  
-    //期货下单
-    function futureTrade() {
-	var sign = MD5("amount=1&api_key="+api_key+"&contract_type=this_week&lever_rate=20&match_price=1&price=1.5&symbol=ltc_usd&type=0&secret_key="+secret_key);
-	doSend("{'event': 'addChannel','channel':'ok_futuresusd_trade','parameters': {'api_key': '"+api_key+"','sign': '"+sign+"','symbol': 'ltc_usd','contract_type': 'this_week','amount': '1','price': '1.5','type': '0','match_price': '1','lever_rate': '20'}}");
-    }
-	
-    //期货取消订单
-    function futureCancelOrder(orderId) {
-	var sign = MD5("api_key="+api_key+"&contract_type=this_week&order_id="+orderId+"&symbol=ltc_usd&secret_key="+secret_key);
-        doSend("{'event': 'addChannel','channel': 'ok_futuresusd_cancel_order','parameters': {'api_key': '"+api_key+"','sign': '"+sign+"','symbol': 'ltc_usd','order_id': '"+orderId+"','contract_type': 'this_week'}}");
-    }
-	
-    //期货个人信息
-    function futureUserInfo(){
-	var sign = MD5("api_key="+api_key+"&secret_key="+secret_key);
-	doSend("{'event':'addChannel','channel':'ok_futureusd_userinfo','parameters' :{'api_key':'"+api_key+"','sign':'"+sign+"'}}");
-    }
-	
-    //现货个人信息
-    function spotUserInfo(){
-	var sign = MD5("api_key="+api_key+"&secret_key="+secret_key);
-	doSend("{'event':'addChannel','channel':'ok_spotusd_userinfo','parameters' :{'api_key':'"+api_key+"','sign':'"+sign+"'}}");
-    }
-	
-    //现货实时交易
-    function ok_usd_realtrades(){
-	var sign = MD5("api_key="+api_key+"&secret_key="+secret_key);
-	doSend("{'event':'addChannel','channel':'ok_usd_realtrades','parameters':{'api_key':'"+api_key+"','sign':'"+sign+"'}}");
-    }
-    //期货实时交易
-    function ok_usd_future_realtrades(){
-	 var sign = MD5("api_key="+api_key+"&secret_key="+secret_key);
-	 doSend("{'event':'addChannel','channel':'ok_usd_future_realtrades','parameters':{'api_key':'"+api_key+"','sign':'"+sign+"'}}");
-    }
-  
-    function onOpen(evt) { 
-        writeToScreen("CONNECTED"); 
-		doSend("{'event':'addChannel','channel':'ok_btccny_trades_v1'}");
-    }  
-  
-    function onClose(evt) { 
-        writeToScreen("DISCONNECTED"); 
-    }  
-  
-    function onMessage(evt) { 
-        //writeToScreen('<span style="color: blue;">RESPONSE: '+ evt.data+'</span>'); 
-        var myList = evt.data;    
-        console.log(myList);
-        console.log(new Date().getTime())
-        var array = JSON.parse(myList)
-        var result = array.event;
-        var isTrade = false;
-        var isCancelOrder = false;
-	    for (var i = 0; i < array.length; i++) {
-		for (var index in array[i]) {
-	             var temp=array[i][index];
-		     if(temp == 'ok_spotusd_trade' || temp == 'ok_spotcny_trade'){
-			   isTrade = true;
-		      }else if(temp == 'ok_spotusd_cancel_order' || temp =='ok_spotcny_cancel_order'){
-		           isCancelOrder = true;
-		      }
-		      var order_id = temp.order_id;
-		      if(typeof(order_id)!='undefined'){
-			       if(isTrade){
-				   console.log("orderId is  "+order_id);
-			           //下单成功 业务代码
-			        }else if(isCancelOrder){
-			           console.log("order  "+order_id+" is now cancled");
-				   //取消订单成功 业务代码
-			        }
-		      }
-	          }
-	     }
-	     if(result == 'pong'){
-		lastHeartBeat = new Date().getTime();
-	     }else{
-                createTable(array);
-	     }
-         			  
-    }  
-	
-  
-    function onError(evt) { 
-        writeToScreen('<span style="color: red;">ERROR:</span> '+ evt.data); 
-    }  
-  
-    function doSend(message) { 
-        writeToScreen("SENT: " + message);  
-        websocket.send(message); 
-    }  
-  
-    function writeToScreen(message) { 
-        var pre = document.createElement("p"); 
-        pre.style.wordWrap = "break-word"; 
-        pre.innerHTML = message; 
-         
-    }  
-  
-    window.addEventListener("load", init, false);  
- 
-    function createTable(array){
-        var  str='<h2 id="th2">WebSocket Test</h2><table id="tdata" border="1"><tr id="tr1">';
-        for (var index in array[0]) {
-            str += '<th>' + index + '</th>';
-        }
-        str += '</tr><tr id="tr2">';
-       
-    	for (var i = 0; i < array.length; i++) {
 
-        	for (var index in array[i]) {
-        	     var temp=array[i][index];
-                     str += '<td>';
-                     var tem=JSON.stringify(temp);            
-                     str += tem;
-                     str += '</td>';
-                }
-                str += '</tr>';
-    	}
-    	str += '</table>';  
-    	removeTable('tdata');
-     	document.write(str);
-     }
-     
-     function removeTable(id){
-        var tbl = document.getElementById(id);
-        if(tbl) tbl.parentNode.removeChild(tbl);
-        var tt = document.getElementById('th2');
-        if(tt) tt.parentNode.removeChild(tt);
-     }
-   
+	function checkConnect() {
+		websocket.send("{'event':'ping'}");
+		if ((new Date().getTime() - okCoinWebSocket.lastHeartBeat) > okCoinWebSocket.overtime) {
+			onsole.log("socket 连接断开，正在尝试重新建立连接");
+			//testWebSocket();
+		}
+	}
+
+	function onOpen(evt) {
+		print("CONNECTED");
+
+		doSend("{'event':'addChannel','channel':'ok_sub_spotcny_btc_kline_1min'}");
+		//现货交易、合约交易测试
+		//tradeTest();
+		
+		//********                            测试数据                                                                 *******/
+		//////////////////现货行情//////////////////////////////////////////////////
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_ticker'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_ticker'}");
+		
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_depth_20'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_depth_60'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_depth_20'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_depth_60'}");
+		
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_trades'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_trades'}");
+		
+		//doSend("{'event':'addChannel','channel':'ok_btcusd_kline_3min'}");
+		
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_1min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_3min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_5min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_15min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_30min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_1hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_2hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_4hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_6hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_12hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_day'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_3day'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_week'}");
+		
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_1min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_3min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_5min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_15min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_30min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_1hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_2hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_4hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_6hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_12hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_day'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_3day'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_week'}");
+		//////////////////现货行情//////////////////////////////////////////////////
+		
+		//////////////合约行情//////////////////////////////////////////////////////
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_ticker_this_week'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_ticker_next_week'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_ticker_quarter'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_ticker_this_week'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_ticker_next_week'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_ticker_quarter'}");
+		
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_1min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_3min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_5min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_15min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_30min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_1hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_2hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_4hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_6hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_12hour'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_day'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_3day'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_week'}");
+		
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_next_week_1min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_quarter_1min'}");
+		
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_kline_this_week_1min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_kline_next_week_1min'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_kline_quarter_1min'}");
+
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_this_week_20'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_this_week_60'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_next_week_20'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_next_week_60'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_quarter_20'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_quarter_60'}");
+
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_this_week_20'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_this_week_60'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_next_week_20'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_next_week_60'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_quarter_20'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_quarter_60'}");
+
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_trade_this_week'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_trade_next_week'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_trade_quarter'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_trade_this_week'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_trade_next_week'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_trade_quarter'}");
+		
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_index'}");
+		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_index'}");
+		//////////////合约行情//////////////////////////////////////////////////////
+	}
+	
+	function tradeTest(){
+		//现货交易
+		//spotTrade();
+		//spotCancelOrder(100);
+		//spotUserInfo();
+		//spotOrderInfo();
+		//spotTrades();
+		//spotUserinfos();
+		
+		//合约交易
+		//futureTrade();
+		//futureCancelOrder(100);
+		//futureUserInfo();
+		//futureOrderInfo(100);
+		//futureTrades();
+		//futureUserinfos();
+		//futurePositions();
+	}
+
+	function onClose(evt) {
+		print("DISCONNECTED");
+	}
+
+	function onMessage(e) {
+		console.log(new Date().getTime() + ": " + e.data)
+		var array = JSON.parse(e.data);
+
+		for (var i = 0; i < array.length; i++) {
+			for (var j = 0;j < array[i].length; j++) {
+				var isTrade = false;
+				var isCancelOrder = false;
+				
+				if (array[i][j] == 'ok_spotusd_trade' || array[i][j] == 'ok_spotcny_trade') {
+					isTrade = true;
+				} else if (array[i][j] == 'ok_spotusd_cancel_order'
+						|| array[i][j] == 'ok_spotcny_cancel_order') {
+					isCancelOrder = true;
+				}
+				
+				var order_id = array[i][j].order_id;
+				if (typeof (order_id) != 'undefined') {
+					if (isTrade) {
+						//下单成功 业务代码
+						console.log("orderId is  " + order_id);
+					} else if (isCancelOrder) {
+						//取消订单成功 业务代码
+						console.log("order  " + order_id + " is now cancled");
+					}
+				}
+			}
+		}
+
+		if (array.event == 'pong') {
+			okCoinWebSocket.lastHeartBeat = new Date().getTime();
+		} else {
+			createTable(array);
+		}
+	}
+
+	function onError(evt) {
+		print('<span style="color: red;">ERROR:</span> ' + evt.data);
+	}
+
+	function doSend(message) {
+		print("SENT: " + message);
+		okCoinWebSocket.websocket.send(message);
+	}
+
+	function print(message) {
+		var status = document.getElementById("status");
+		status.style.wordWrap = "break-word";
+		status.innerHTML += message + "<br/>";
+	}
+	
+	function createTable(array) {
+		var str = '<table id="tdata" border="1">\r\n<tr id="tr0">\r\n';
+		for ( var index in array[0]) {
+			str += '<th>' + index + '</th>\r\n';
+		}
+		str += '</tr>\r\n';
+
+		for ( var i = 0; i < array.length; i++) {
+			str += '<tr id="tr' + (i+1) + '">\r\n';
+			for ( var j in array[i]) {
+				str += '<td>' + JSON.stringify(array[i][j]) + '</td>\r\n';
+				//if(typeof array[i][j] == 'string' && array[i][j].indexOf("ok_") >= 0) {
+					//console.log(array[i][j]);
+				//}
+			}
+			str += '</tr>\r\n';
+		}
+		
+		str += '</table>\r\n';
+		document.getElementById("output").innerHTML = str;
+	}
+
+	//现货下单
+	function spotTrade() {
+		var sign = MD5("amount=0.1&api_key=" + okCoinWebSocket.api_key
+				+ "&symbol=ltc_usd&type=sell_market&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event':'addChannel','channel':'ok_spotusd_trade','parameters':{'api_key':'" + okCoinWebSocket.api_key
+				+ "','sign':'" + sign + "','symbol':'ltc_usd','type':'sell_market','amount':0.1}}");
+	}
+
+	//现货取消订单
+	function spotCancelOrder(orderId) {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&order_id=" + orderId
+				+ "&symbol=ltc_usd&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event':'addChannel','channel':'ok_spotusd_cancel_order','parameters':{'api_key':'" + okCoinWebSocket.api_key
+				+ "','sign':'" + sign + "','symbol':'ltc_usd','order_id':'" + orderId + "'}}");
+	}
+
+	//现货个人信息
+	function spotUserInfo() {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event':'addChannel','channel':'ok_spotusd_userinfo','parameters' :{'api_key':'"
+				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
+	}
+	
+	//查询订单信息
+	function spotOrderInfo(){
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&order_id=20914907&secret_key=" + okCoinWebSocket.secret_key + "&symbol=ltc_usd");
+		doSend("{'event':'addChannel','channel':'ok_spotusd_orderinfo','parameters' :{'api_key':'"
+				+ okCoinWebSocket.api_key + "','symbol':'ltc_usd','order_id':'20914907','sign':'" + sign + "'}}");
+	}
+	//订阅交易数据
+	function spotTrades() {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event':'addChannel','channel':'ok_sub_spotusd_trades','parameters' :{'api_key':'"
+				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
+	}
+	//订阅账户信息
+	function spotUserinfos() {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event':'addChannel','channel':'ok_sub_spotusd_userinfo','parameters' :{'api_key':'"
+				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
+	}
+
+	//期货下单
+	function futureTrade() {
+		var sign = MD5("amount=1&api_key=" + okCoinWebSocket.api_key + 
+				"&contract_type=this_week&lever_rate=20&match_price=1&price=1.5&symbol=ltc_usd&type=0&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event': 'addChannel','channel':'ok_futureusd_trade','parameters': {'api_key': '"
+				+ okCoinWebSocket.api_key + "','sign': '" + sign + "','symbol': 'ltc_usd','contract_type': 'this_week','amount': '1','price': '1.5','type': '0','match_price': '1','lever_rate': '20'}}");
+	}
+
+	//期货取消订单
+	function futureCancelOrder(orderId) {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&contract_type=this_week&order_id=" + orderId
+				+ "&symbol=ltc_usd&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event': 'addChannel','channel': 'ok_futureusd_cancel_order','parameters': {'api_key': '"
+				+ okCoinWebSocket.api_key + "','sign': '" + sign + "','symbol': 'ltc_usd','order_id': '" + orderId
+				+ "','contract_type': 'this_week'}}");
+	}
+
+	//期货个人信息
+	function futureUserInfo() {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event':'addChannel','channel':'ok_futureusd_userinfo','parameters' :{'api_key':'"
+				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
+	}
+
+	//查询合约订单
+	function futureOrderInfo(orderId) {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&contract_type=this_week&current_page=1&order_id=" + orderId
+				+ "&page_length=1&symbol=ltc_usd&secret_key=" + okCoinWebSocket.secret_key + "&status=1");
+		doSend("{'event': 'addChannel','channel': 'ok_futureusd_orderinfo','parameters': {'api_key': '"
+				+ okCoinWebSocket.api_key + "','sign': '" + sign + "','symbol': 'ltc_usd','order_id': '" + orderId
+				+ "','contract_type': 'this_week','status':'1','current_page':'1','page_length':'1'}}");
+	}
+	
+	//订阅合约交易数据
+	function futureTrades() {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event':'addChannel','channel':'ok_sub_futureusd_trades','parameters' :{'api_key':'"
+				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
+	}
+	
+	//订阅合约账户信息
+	function futureUserinfos() {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event':'addChannel','channel':'ok_sub_futureusd_userinfo','parameters' :{'api_key':'"
+				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
+	}
+	
+	//订阅合约持仓信息
+	function futurePositions() {
+		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
+		doSend("{'event':'addChannel','channel':'ok_sub_futureusd_positions','parameters' :{'api_key':'"
+				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
+	}
+
+	window.onload = okCoinWebSocket.init("wss://real.okcoin.cn:10440/websocket/okcoinapi", "#YOUR_API_KEY#", "#YOUR_SECRET_KEY#");
 </script>
 <body>
-
-</body>
+<h2 id="th2">WebSocket Test</h2>
 <div id="status"></div>
 <div id="output"></div>
+</body>
 </html>
