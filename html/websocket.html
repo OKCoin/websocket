@@ -1,349 +1,516 @@
 <!DOCTYPE html>
-<meta charset="utf-8" />
+<meta charset="utf-8"/>
 <title>WebSocket Test</title>
 <!--
 	版本：1.0<br/>
 	作者：OKCoin<br/>
 -->
 <script type="text/javascript" src="MD5.js"></script>
-<script type="text/javascript">
-	var okCoinWebSocket = {};
-	okCoinWebSocket.init = function(uri, apiKey, secretKey) {
-		this.wsUri = uri;
-		this.apiKey = apiKey;
-		this.secretKey = secretKey;
-		this.lastHeartBeat = new Date().getTime();
-		this.overtime = 8000;
-		
-		okCoinWebSocket.websocket = new WebSocket(okCoinWebSocket.wsUri);
-		
-		okCoinWebSocket.websocket.onopen = function(evt) {
-			onOpen(evt)
-		};
-		okCoinWebSocket.websocket.onclose = function(evt) {
-			onClose(evt)
-		};
-		okCoinWebSocket.websocket.onmessage = function(evt) {
-			onMessage(evt)
-		};
-		okCoinWebSocket.websocket.onerror = function(evt) {
-			onError(evt)
-		};
-		
-		//setInterval(checkConnect,5000);
-	}
+<script type="text/javascript" src="jsob_core.js"></script>
+<script type="text/javascript" src="other.js"></script>
 
-	function checkConnect() {
-		websocket.send("{'event':'ping'}");
-		if ((new Date().getTime() - okCoinWebSocket.lastHeartBeat) > okCoinWebSocket.overtime) {
-			onsole.log("socket 连接断开，正在尝试重新建立连接");
-			//testWebSocket();
-		}
-	}
-
-	function onOpen(evt) {
-		print("CONNECTED");
-
-		doSend("{'event':'addChannel','channel':'ok_sub_spotcny_btc_kline_1min'}");
-		//现货交易、合约交易测试
-		//tradeTest();
-		
-		//********                            测试数据                                                                 *******/
-		//////////////////现货行情//////////////////////////////////////////////////
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_ticker'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_ticker'}");
-		
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_depth_20'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_depth_60'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_depth_20'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_depth_60'}");
-		
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_trades'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_trades'}");
-		
-		//doSend("{'event':'addChannel','channel':'ok_btcusd_kline_3min'}");
-		
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_1min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_3min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_5min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_15min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_30min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_1hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_2hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_4hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_6hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_12hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_day'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_3day'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_btc_kline_week'}");
-		
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_1min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_3min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_5min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_15min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_30min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_1hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_2hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_4hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_6hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_12hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_day'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_3day'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_spotusd_ltc_kline_week'}");
-		//////////////////现货行情//////////////////////////////////////////////////
-		
-		//////////////合约行情//////////////////////////////////////////////////////
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_ticker_this_week'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_ticker_next_week'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_ticker_quarter'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_ticker_this_week'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_ticker_next_week'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_ticker_quarter'}");
-		
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_1min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_3min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_5min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_15min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_30min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_1hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_2hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_4hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_6hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_12hour'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_day'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_3day'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_this_week_week'}");
-		
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_next_week_1min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_kline_quarter_1min'}");
-		
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_kline_this_week_1min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_kline_next_week_1min'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_kline_quarter_1min'}");
-
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_this_week_20'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_this_week_60'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_next_week_20'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_next_week_60'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_quarter_20'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_depth_quarter_60'}");
-
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_this_week_20'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_this_week_60'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_next_week_20'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_next_week_60'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_quarter_20'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_depth_quarter_60'}");
-
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_trade_this_week'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_trade_next_week'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_trade_quarter'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_trade_this_week'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_trade_next_week'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_trade_quarter'}");
-		
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_btc_index'}");
-		//doSend("{'event':'addChannel','channel':'ok_sub_futureusd_ltc_index'}");
-		//////////////合约行情//////////////////////////////////////////////////////
-	}
-	
-	function tradeTest(){
-		//现货交易
-		//spotTrade();
-		//spotCancelOrder(100);
-		//spotUserInfo();
-		//spotOrderInfo();
-		//spotTrades();
-		//spotUserinfos();
-		
-		//合约交易
-		//futureTrade();
-		//futureCancelOrder(100);
-		//futureUserInfo();
-		//futureOrderInfo(100);
-		//futureTrades();
-		//futureUserinfos();
-		//futurePositions();
-	}
-
-	function onClose(evt) {
-		print("DISCONNECTED");
-	}
-
-	function onMessage(e) {
-		console.log(new Date().getTime() + ": " + e.data)
-		var array = JSON.parse(e.data);
-
-		for (var i = 0; i < array.length; i++) {
-			for (var j = 0;j < array[i].length; j++) {
-				var isTrade = false;
-				var isCancelOrder = false;
-				
-				if (array[i][j] == 'ok_spotusd_trade' || array[i][j] == 'ok_spotcny_trade') {
-					isTrade = true;
-				} else if (array[i][j] == 'ok_spotusd_cancel_order'
-						|| array[i][j] == 'ok_spotcny_cancel_order') {
-					isCancelOrder = true;
-				}
-				
-				var order_id = array[i][j].order_id;
-				if (typeof (order_id) != 'undefined') {
-					if (isTrade) {
-						//下单成功 业务代码
-						console.log("orderId is  " + order_id);
-					} else if (isCancelOrder) {
-						//取消订单成功 业务代码
-						console.log("order  " + order_id + " is now cancled");
-					}
-				}
-			}
-		}
-
-		if (array.event == 'pong') {
-			okCoinWebSocket.lastHeartBeat = new Date().getTime();
-		} else {
-			createTable(array);
-		}
-	}
-
-	function onError(evt) {
-		print('<span style="color: red;">ERROR:</span> ' + evt.data);
-	}
-
-	function doSend(message) {
-		print("SENT: " + message);
-		okCoinWebSocket.websocket.send(message);
-	}
-
-	function print(message) {
-		var status = document.getElementById("status");
-		status.style.wordWrap = "break-word";
-		status.innerHTML += message + "<br/>";
-	}
-	
-	function createTable(array) {
-		var str = '<table id="tdata" border="1">\r\n<tr id="tr0">\r\n';
-		for ( var index in array[0]) {
-			str += '<th>' + index + '</th>\r\n';
-		}
-		str += '</tr>\r\n';
-
-		for ( var i = 0; i < array.length; i++) {
-			str += '<tr id="tr' + (i+1) + '">\r\n';
-			for ( var j in array[i]) {
-				str += '<td>' + JSON.stringify(array[i][j]) + '</td>\r\n';
-				//if(typeof array[i][j] == 'string' && array[i][j].indexOf("ok_") >= 0) {
-					//console.log(array[i][j]);
-				//}
-			}
-			str += '</tr>\r\n';
-		}
-		
-		str += '</table>\r\n';
-		document.getElementById("output").innerHTML = str;
-	}
-
-	//现货下单
-	function spotTrade() {
-		var sign = MD5("amount=0.1&api_key=" + okCoinWebSocket.api_key
-				+ "&symbol=ltc_usd&type=sell_market&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event':'addChannel','channel':'ok_spotusd_trade','parameters':{'api_key':'" + okCoinWebSocket.api_key
-				+ "','sign':'" + sign + "','symbol':'ltc_usd','type':'sell_market','amount':0.1}}");
-	}
-
-	//现货取消订单
-	function spotCancelOrder(orderId) {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&order_id=" + orderId
-				+ "&symbol=ltc_usd&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event':'addChannel','channel':'ok_spotusd_cancel_order','parameters':{'api_key':'" + okCoinWebSocket.api_key
-				+ "','sign':'" + sign + "','symbol':'ltc_usd','order_id':'" + orderId + "'}}");
-	}
-
-	//现货个人信息
-	function spotUserInfo() {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event':'addChannel','channel':'ok_spotusd_userinfo','parameters' :{'api_key':'"
-				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
-	}
-	
-	//查询订单信息
-	function spotOrderInfo(){
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&order_id=20914907&secret_key=" + okCoinWebSocket.secret_key + "&symbol=ltc_usd");
-		doSend("{'event':'addChannel','channel':'ok_spotusd_orderinfo','parameters' :{'api_key':'"
-				+ okCoinWebSocket.api_key + "','symbol':'ltc_usd','order_id':'20914907','sign':'" + sign + "'}}");
-	}
-	//订阅交易数据
-	function spotTrades() {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event':'addChannel','channel':'ok_sub_spotusd_trades','parameters' :{'api_key':'"
-				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
-	}
-	//订阅账户信息
-	function spotUserinfos() {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event':'addChannel','channel':'ok_sub_spotusd_userinfo','parameters' :{'api_key':'"
-				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
-	}
-
-	//合约下单
-	function futureTrade() {
-		var sign = MD5("amount=1&api_key=" + okCoinWebSocket.api_key + 
-				"&contract_type=this_week&lever_rate=20&match_price=1&price=1.5&symbol=ltc_usd&type=0&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event': 'addChannel','channel':'ok_futureusd_trade','parameters': {'api_key': '"
-				+ okCoinWebSocket.api_key + "','sign': '" + sign + "','symbol': 'ltc_usd','contract_type': 'this_week','amount': '1','price': '1.5','type': '0','match_price': '1','lever_rate': '20'}}");
-	}
-
-	//合约取消订单
-	function futureCancelOrder(orderId) {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&contract_type=this_week&order_id=" + orderId
-				+ "&symbol=ltc_usd&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event': 'addChannel','channel': 'ok_futureusd_cancel_order','parameters': {'api_key': '"
-				+ okCoinWebSocket.api_key + "','sign': '" + sign + "','symbol': 'ltc_usd','order_id': '" + orderId
-				+ "','contract_type': 'this_week'}}");
-	}
-
-	//合约个人信息
-	function futureUserInfo() {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event':'addChannel','channel':'ok_futureusd_userinfo','parameters' :{'api_key':'"
-				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
-	}
-
-	//查询合约订单
-	function futureOrderInfo(orderId) {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&contract_type=this_week&current_page=1&order_id=" + orderId
-				+ "&page_length=1&symbol=ltc_usd&secret_key=" + okCoinWebSocket.secret_key + "&status=1");
-		doSend("{'event': 'addChannel','channel': 'ok_futureusd_orderinfo','parameters': {'api_key': '"
-				+ okCoinWebSocket.api_key + "','sign': '" + sign + "','symbol': 'ltc_usd','order_id': '" + orderId
-				+ "','contract_type': 'this_week','status':'1','current_page':'1','page_length':'1'}}");
-	}
-	
-	//订阅合约交易数据
-	function futureTrades() {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event':'addChannel','channel':'ok_sub_futureusd_trades','parameters' :{'api_key':'"
-				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
-	}
-	
-	//订阅合约账户信息
-	function futureUserinfos() {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event':'addChannel','channel':'ok_sub_futureusd_userinfo','parameters' :{'api_key':'"
-				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
-	}
-	
-	//订阅合约持仓信息
-	function futurePositions() {
-		var sign = MD5("api_key=" + okCoinWebSocket.api_key + "&secret_key=" + okCoinWebSocket.secret_key);
-		doSend("{'event':'addChannel','channel':'ok_sub_futureusd_positions','parameters' :{'api_key':'"
-				+ okCoinWebSocket.api_key + "','sign':'" + sign + "'}}");
-	}
-
-	window.onload = okCoinWebSocket.init("wss://real.okcoin.cn:10440/websocket/okcoinapi", "#YOUR_API_KEY#", "#YOUR_SECRET_KEY#");
-</script>
 <body>
 <h2 id="th2">WebSocket Test</h2>
+
 <div id="status"></div>
-<div id="output"></div>
+<table border="1">
+  <tr>
+    <td id="ok_sub_spotcny_btc_kline_1min" onclick="getData(this)">ok_sub_spotcny_btc_kline_1min</td>
+    <td></td>
+  </tr>
+  <!--<tr>-->
+  <!--<td id="ok_sub_spotcny_btc_kline_1min" onclick="getData(this)">ok_sub_spotcny_btc_kline_1min</td>-->
+  <!--<td></td>-->
+  <!--</tr>-->
+  <!--<tr>-->
+  <!--<td></td>-->
+  <!--<td id="orderinfo" onclick="getData(this)">orderinfo</td>-->
+  <!--<td></td>-->
+  <!--</tr>-->
+  <tr>
+    <td id="ok_spotcny_trade" onclick="getData(this)">ok_spotcny_trade</td>
+    <td rowspan="2"></td>
+  </tr>
+  <tr>
+    <td>
+      amount: <input id="amount" value="0.01">
+      <!--<br>symbol: <input id="symbol" value="btc_cny">-->
+      <br>price: <input id="price">
+      <br>
+      <input id="buy" type="radio" name="market" value="buy" checked>buy
+      <input type="radio" name="market" value="sell">sell
+    </td>
+  </tr>
+  <tr>
+    <td id="ok_spotcny_cancel_order" onclick="getData(this)">ok_spotcny_cancel_order</td>
+    <td rowspan="2"></td>
+  </tr>
+  <tr>
+    <td><select id="cancel_order_orderId" multiple="multiple" SIZE="2"></select></td>
+  </tr>
+  <tr>
+    <td id="ok_spotcny_userinfo" onclick="getData(this)">ok_spotcny_userinfo</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td id="ok_spotcny_orderinfo" onclick="getData(this)">ok_spotcny_orderinfo</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td id="ok_sub_spotcny_trades" onclick="getData(this)">ok_sub_spotcny_trades</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td id="ok_sub_spotcny_userinfo" onclick="getData(this)">ok_sub_spotcny_userinfo</td>
+    <td></td>
+  </tr>
+</table>
 </body>
 </html>
+<script type="text/javascript">
+  var SS = localStorage;
+  var okCoinWebSocket = {};
+  okCoinWebSocket.init = function(uri, apiKey, secretKey){
+    this.wsUri         = uri;
+    this.apiKey        = apiKey;
+    this.secretKey     = secretKey;
+    this.lastHeartBeat = new Date().getTime();
+    this.overtime      = 60000;
+
+    okCoinWebSocket.websocket = new WebSocket(okCoinWebSocket.wsUri);
+
+    okCoinWebSocket.websocket.onopen    = function(evt){
+      print("CONNECTED");
+      init();
+    };
+    okCoinWebSocket.websocket.onclose   = function(evt){
+      print("DISCONNECTED");
+    };
+    okCoinWebSocket.websocket.onmessage = function(evt){
+      onMessage(evt)
+    };
+    okCoinWebSocket.websocket.onerror   = function(evt){
+      print('<span style="color: red;">ERROR:</span> ' + evt.data);
+    };
+
+    setInterval(checkConnect, 50000);
+  };
+
+  function checkConnect(){
+    okCoinWebSocket.websocket.send("{'event':'ping'}");
+    if((new Date().getTime() - okCoinWebSocket.lastHeartBeat) > okCoinWebSocket.overtime){
+      console.error("socket 连接断开，正在尝试重新建立连接");
+    }
+  }
+
+  function doSend(message){
+    //    console.log("SENT: " + message);
+    okCoinWebSocket.websocket.send(message);
+  }
+
+  function print(message){
+    var status            = document.getElementById("status");
+    status.style.wordWrap = "break-word";
+    status.innerHTML += message + "<br/>";
+  }
+
+  function sign(obj){
+    obj.api_key = okCoinWebSocket.apiKey;
+
+    var arr = Object.keys(obj);
+    arr.sort();
+
+    var s = '';
+    for(var i = 0, l = arr.length; i < l; i++){
+      s += "&" + arr[i] + "=" + obj[arr[i]];
+    }
+    s += "&secret_key=" + okCoinWebSocket.secretKey;
+    return MD5(s.substring(1));
+  }
+
+  function mySend(channel, parameters){
+    parameters         = parameters || {};
+    parameters.api_key = okCoinWebSocket.apiKey;
+    parameters.sign    = sign(parameters);
+    myChannel(channel, parameters)
+  }
+
+  function myChannel(channel, parameters){
+    var obj = {
+      event  : 'addChannel',
+      channel: channel
+    };
+    if(parameters){
+      obj.parameters = parameters;
+    }
+    doSend(JSON.stringify(obj));
+  }
+
+  window.onload = okCoinWebSocket.init("wss://real.okcoin.cn:10440/websocket/okcoinapi", "70535ed1-5926-4777-a583-7be017c1cf8c", "B4461F3008139601899A499C5BC54F00");
+
+  var TAB = '  ';
+  var BR = '\n';//'<br>';
+
+  function showObj(obj, tab){
+    tab        = (tab || 0) + 1;
+    var output = [];
+    if(isNull(obj)){
+      return null;
+    }
+    else if(isObject(obj) || isArray(obj)){
+      var is_object = isObject(obj);
+      if(is_object){
+        var pre_ext        = '{}';
+        var max_key_length = 0;
+        var objKeys        = Object.keys(obj);
+        objKeys            = objKeys.sort();
+        var new_obj        = {}, key;
+        for(var i = 0, l = objKeys.length; i < l; i++){
+          key            = objKeys[i];
+          new_obj[key]   = obj[key];
+          max_key_length = Math.max(max_key_length, key.length);
+        }
+        obj = new_obj;
+      }
+      else{
+        var pre_ext = '[]';
+      }
+
+      output.push(pre_ext[0]);
+
+      for(var key in obj){
+        if(is_object){
+          var pre = showObj(key) + '                     '.substring(0, max_key_length - key.length) + ': ';
+        }
+        else{
+          var pre = '';
+        }
+        output.push(addTab(tab, pre + showObj(obj[key], tab) + ','));
+      }
+      var len = output.length;
+      if(len > 1){
+        output[len - 1] = output[len - 1].substring(0, output[len - 1].length - 1);
+      }
+      output.push(addTab(tab - 1, pre_ext[1]));
+      return output.join(BR);
+    }
+    else if(isNumber(obj)){
+      return obj;
+    }
+    else if(isString(obj)){
+      return '"' + obj + '"';
+    }
+    else{
+      return obj;
+    }
+  }
+  function addTab(tab, str){
+    var blanks = '';
+    while(tab--){
+      blanks += TAB;
+    }
+    return blanks + str;
+  }
+
+  function isNull(s){
+    return !s && typeof(s) != "undefined" && s != 0;
+  }
+  function isNumber(s){
+    return typeof(s) == 'number';
+  }
+  function isString(s){
+    return typeof(s) == 'string';
+  }
+  function isArray(obj){
+    return obj instanceof Array;
+  }
+  function isObject(obj){
+    try{
+      //排除 null
+      return typeof(obj) == 'object' && obj && obj.constructor == Object;
+    }
+    catch(e){
+      console.error(obj);
+    }
+  }
+
+  function init(){
+    buy_orders   = {};
+    sell_orders  = {};
+    trade        = {};
+    SS.can_trade = 1;
+    E            = Math.E;
+    spotUserInfo();
+    spotSubTrades();
+    spotSubUserinfos();
+    myChannel('ok_sub_spotcny_btc_kline_1min');
+  }
+
+  //现货下单
+  function spotTrade(amount, price, type, symbol){
+    if(amount < 0.01){
+      console.error('amount error: ' + amount);
+      return;
+    }
+
+    if(!price){
+      console.error('price error: ' + price);
+      return;
+    }
+    var obj = {
+      amount: amount,
+      price : price,
+      type  : type,
+      symbol: symbol || 'btc_cny'
+    };
+
+    mySend('ok_spotcny_trade', obj);
+  }
+
+  //现货取消订单
+  function spotCancelOrder(orderId, symbol){
+    mySend('ok_spotcny_cancel_order', {
+      order_id: orderId,
+      symbol  : symbol || 'btc_cny'
+    });
+  }
+
+  //现货个人信息
+  function spotUserInfo(){
+    mySend('ok_spotcny_userinfo');
+  }
+
+  //查询订单信息
+  function spotOrderInfo(orderId, symbol){
+    mySend('ok_spotcny_orderinfo', {
+      order_id: orderId || -1,
+      symbol  : symbol || 'btc_cny'
+    });
+  }
+
+  //订阅交易数据
+  function spotSubTrades(){
+    mySend('ok_sub_spotcny_trades');
+  }
+
+  //订阅账户信息
+  function spotSubUserinfos(){
+    mySend('ok_sub_spotcny_userinfo');
+  }
+
+  function onMessage(e){
+    var array = JSON.parse(e.data);
+
+    if(array.event == 'pong'){
+      okCoinWebSocket.lastHeartBeat = new Date().getTime();
+    }
+    else{
+      var channel, node;
+      for(var i = 0, l = array.length; i < l; i++){
+        channel = array[i].channel;
+        node    = document.getElementById(channel);
+        if(node){
+          node.nextElementSibling.innerHTML = '<pre>' + showObj(array[i].data || array[i]) + '</pre>';
+
+          setTrade(channel, array[i], node);
+        }
+      }
+    }
+  }
+
+  function setTrade(channel, data, node){
+    switch(channel){
+      case 'ok_sub_spotcny_btc_kline_1min':
+        if(data.data){
+          var now   = Date.now();
+          var close = +data.data[4];
+
+          if(!close){
+            return;
+          }
+          //total, btc, cny, now, close
+          //SS: price, amount, time, type, can_sell, can_buy
+
+          var sell_amount = Math.min(0.01, btc); //fixTo2(btc * .95);
+          var buy_amount  = Math.min(0.01, cny / close); //fixTo2(cny / close * 0.95);
+          var trade_price = fixTo2(SS.price);
+          if(SS.can_trade == '1'){
+            if(sell_amount >= 0.01 && close > trade_price + 1){
+                spotTrade(sell_amount, trade_price, 'sell');
+//                console.log('sell', sell_amount, trade_price);
+
+                //停止判断, 直到交易成功
+                SS.can_trade = 0;
+            }
+            if(buy_amount >= 0.01 && close < trade_price - 1){
+                spotTrade(buy_amount, trade_price, 'buy');
+//                console.log('buy', buy_amount, trade_price);
+
+                //停止判断, 直到交易成功
+                SS.can_trade = 0;
+            }
+          }
+        }
+        break;
+      case 'ok_spotcny_userinfo' :
+        if(data.success == 'false'){
+          return;
+        }
+        try{
+          var funds = data.data.info.funds;
+          total     = +funds.asset.total;
+          cny       = +funds.free.cny;
+          btc       = +funds.free.btc;
+        }
+        catch(e){
+          console.error(e, data);
+          spotUserInfo();
+        }
+
+        break;
+      case 'ok_spotcny_orderinfo' :
+        /*
+         {
+         "amount"     : 0.02,
+         "avg_price"  : 0,
+         "create_date": 1461587008000,
+         "deal_amount": 0,
+         "order_id"   : 2913340076,
+         "orders_id"  : 2913340076,
+         "price"      : 2802,
+         "status"     : 0,
+         "symbol"     : "btc_cny",
+         "type"       : "buy"
+         }
+         */
+        if(!data.data || !data.data.orders){
+          return;
+        }
+
+        var orders      = data.data.orders;
+        var order;
+        var select_node = $('#cancel_order_orderId').I();
+
+        buy_orders  = {};
+        sell_orders = {};
+
+        for(var j = 0, m = orders.length; j < m; j++){
+          order = orders[j];
+          $.c(select_node, {
+            value: order.order_id,
+            I    : [order.amount, order.price, order.type].join(' ')
+          }, 'option');
+
+          if(order.type == 'buy'){
+            buy_orders[order.order_id] = 1;
+          }
+          if(order.type == 'sell'){
+            sell_orders[order.order_id] = 1;
+          }
+        }
+        break;
+      case 'ok_sub_spotcny_trades' :
+        spotOrderInfo();
+        var data = data.data;
+        if(data){
+          if(data.status == 2){
+            cancelAllOrders();
+            SS.clear();
+            SS.price  = data.averagePrice;
+            SS.amount = data.tradeAmount;
+            SS.time   = Date.now(); //data.createdDate;
+            SS.type   = data.tradeType;
+
+            console.log(myTime(+SS.time), SS.price, SS.amount, SS.type);
+
+            //等待刷新账户数据
+            setTimeout(function(){
+              //可以交易了
+              SS.can_trade = 1;
+//              console.log('can_trade');
+            }, 2000);
+
+          }
+        }
+        node.nextElementSibling.title = [
+          'createdDate:创建日期',
+          'orderId:订单id',
+          'tradeType:交易类型（buy:买入；sell:卖出；buy_market:按市价买入；sell_market:按市价卖出）',
+          'sigTradeAmount:单笔成交数量',
+          'sigTradePrice:单笔成交价格',
+          'tradeAmount:委托数量（市价卖代表要卖总数量；限价单代表委托数量）',
+          'tradeUnitPrice:委托价格（市价买单代表购买总金额； 限价单代表委托价格）',
+          'symbol:btc_cny:比特币；ltc_cny:莱特币',
+          'completedTradeAmount:已完成成交量',
+          'tradePrice:成交金额',
+          'averagePrice:平均成交价',
+          'unTrade:当按市场价买币时表示剩余金额，其他情况表示此笔交易剩余买/卖币的数量',
+          'status:-1已撤销,0等待成交,1部分成交,2完全成交,4撤单处理中'
+        ].join("\n");
+        break;
+      case 'ok_sub_spotcny_userinfo' :
+        spotUserInfo();
+        break;
+    }
+  }
+
+  function myTime(time){
+    return (new Date(time)).toLocaleString()
+  }
+
+  function fixTo2(n){
+    return $.R(n * 100) / 100;
+  }
+
+  function cancelAllOrders(){
+    for(var order_id in buy_orders){
+      spotCancelOrder(order_id);
+    }
+    for(var order_id in sell_orders){
+      spotCancelOrder(order_id);
+    }
+  }
+
+  function getData(node){
+    var channel = node.id;
+    switch(channel){
+      case 'ok_spotcny_trade':
+        var amount     = $('#amount').val() || 0.01;
+        var price      = $('#price').val();
+        var type       = $('#buy').context.checked ? 'buy' : 'sell';
+        var symbol     = 'btc_cny';
+        var parameters = {
+          symbol: symbol,
+          amount: amount,
+          price : price,
+          type  : type
+        };
+
+        if(confirm(showObj(parameters))){
+          spotTrade(amount, price, type, symbol);
+        }
+        break;
+      case 'ok_spotcny_cancel_order':
+        spotCancelOrder($('#cancel_order_orderId').val());
+        break;
+      case 'ok_spotcny_userinfo':
+        spotUserInfo();
+        break;
+      case 'ok_spotcny_orderinfo':
+        spotOrderInfo();
+        break;
+      case 'ok_sub_spotcny_trades':
+        spotSubTrades();
+        break;
+      case 'ok_sub_spotcny_userinfo':
+        spotSubUserinfos();
+        break;
+      default:
+        myChannel(channel);
+    }
+  }
+
+  //  setTimeout(function(){
+  //    window.location.reload();
+  //  }, 600000);
+</script>

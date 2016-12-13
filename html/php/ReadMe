@@ -1,0 +1,23 @@
+
+OKCOIN REST API  PHP  DEMO
+
+环境：
+	1.PHP 5.5.19
+	2.要在php.ini里启用curl模块;php.ini里搜extension=php_curl.dll 把这行前面的分号去掉
+	
+	
+说明：
+	1.如果不需要部署在SERVER 端 不需安装APACHE,使用 PHP 命令就可以运行代码
+	2.入口函数 OKCoinApi.php
+	3.遵循OKCOIN 官网REST API 使用 MD5加密规则
+			具体加密流程在：Rpc.php   39 - 50 行
+			
+	4.Base.php 中 WEB_BASE 参数，配置访问OKCoin国际中国站地址
+PS: OKCoin API 技术群 334662836
+	 
+
+
+
+	
+
+	
