@@ -8,10 +8,10 @@
 <script type="text/javascript" src="MD5.js"></script>
 <script type="text/javascript">
 	var okCoinWebSocket = {};
-	okCoinWebSocket.init = function(uri, apiKey, secretKey) {
+	okCoinWebSocket.init = function(uri, api_key, secret_key) {
 		this.wsUri = uri;
-		this.apiKey = apiKey;
-		this.secretKey = secretKey;
+		this.api_key = api_key;
+		this.secret_key = secret_key;
 		this.lastHeartBeat = new Date().getTime();
 		this.overtime = 8000;
 		
