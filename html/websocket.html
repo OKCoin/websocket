@@ -10,8 +10,8 @@
 	var okCoinWebSocket = {};
 	okCoinWebSocket.init = function(uri, apiKey, secretKey) {
 		this.wsUri = uri;
-		this.apiKey = apiKey;
-		this.secretKey = secretKey;
+		this.api_key = apiKey;
+		this.secret_key = secretKey;
 		this.lastHeartBeat = new Date().getTime();
 		this.overtime = 8000;
 		
